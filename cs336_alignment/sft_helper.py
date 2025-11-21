@@ -39,14 +39,17 @@ def tokenize_prompt_and_output(
         raise ValueError("len(prompt_strs) != len(output_strs)")
 
     # tokenize
-    prompt_tokens = tokenizer(prompt_strs, padding=False, truncation=False, return_tensors="pt")
-    output_tokens = tokenizer(output_strs, padding=False, truncation=False, return_tensors="pt")
+    prompt_tokens = tokenizer(prompt_strs, padding=False, truncation=False, return_tensors=None)
+    output_tokens = tokenizer(output_strs, padding=False, truncation=False, return_tensors=None)
 
     batch_size = len(prompt_strs)
-    concatenated_ids = torch.cat([prompt_tokens["input_ids"], output_tokens["input_ids"]], dim=1)
+    # concatenated_ids = torch.cat([prompt_tokens["input_ids"], output_tokens["input_ids"]], dim=1)
+    concatenated_ids = []
+    for i in range(batch_size):
+        concatenated_ids.append(prompt_tokens["input_ids"][i] + output_tokens["input_ids"][i])
 
     padded = tokenizer.pad(
-        {"input_ids": concatenated_ids.tolist()},
+        {"input_ids": concatenated_ids},
         padding=PaddingStrategy.LONGEST,
         return_tensors="pt",
     )
